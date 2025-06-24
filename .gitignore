@@ -1,0 +1,39 @@
+#编译产物
+
+*.o *.ko *.mod *.mod.c *.symvers *.order *.cmd Module.symvers modules.order
+
+#内核模块构建目录
+
+/build/ /obj/
+
+#临时文件
+
+*.tmp *.bak *~ *.swp *.swo
+
+#日志和调试文件
+
+*.log dmesg.txt crash.log
+
+#工具生成的文件
+
+compile_commands.json .bear/ .tags cscope.*
+
+#编辑器和 IDE 临时文件
+
+.vscode/ .idea/ *.code-workspace *.sublime-project *.sublime-workspace
+
+#依赖和包管理
+
+deps/ vendor/
+
+#本地配置文件（避免提交）
+
+.env .config .local
+
+#压缩文件和备份
+
+*.tar.gz *.zip *.bz2 *.xz
+
+#杂项
+
+.DS_Store Thumbs.db
