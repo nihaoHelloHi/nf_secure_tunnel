@@ -1,5 +1,7 @@
-#include "./include/dependency.h"
-#include "./include/nf_hook.h"
+#include "nst.h"
+
+MODULE_LICENSE("NST");
+MODULE_AUTHOR("Tangmin");
 
 static struct nf_hook_ops nf_local_in={
 	.hook = hook_local_in, // 钩子入口
@@ -15,4 +17,19 @@ static struct nf_hook_ops nf_local_out={
 	.priority = NF_IP_PRI_FIRST
 };
 
+
+
+static int __init nst_init(void)
+{
+    pr_info("NST module loaded.\n");
+    return 0;
+}
+
+static void __exit nst_exit(void)
+{
+    pr_info("NST module unloaded.\n");
+}
+
+module_init(nst_init);
+module_exit(nst_exit);
 

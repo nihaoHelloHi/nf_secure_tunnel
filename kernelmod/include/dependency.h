@@ -18,7 +18,5 @@
 #include <linux/spinlock.h>
 #include <linux/types.h>   // uint*_t
 #include <linux/netdevice.h> // struct net_device
-#include <bits/stdint-uintn.h> 
-#include <bits/types/struct_iovec.h>
 
 #endif
