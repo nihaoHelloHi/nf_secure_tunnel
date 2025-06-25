@@ -10,7 +10,9 @@ SRC := \
 	src/nst_log.c \
 	src/nst_plhdr.c \
 	src/nst_hook.c \
-	src/nst_encrypt.c
+	src/nst_encrypt.c \
+	src/nst_encrypt_algo.c \
+	tool.c
 
 # 内核源码路径（默认使用当前系统内核）
 KERNELDIR := /lib/modules/$(shell uname -r)/build

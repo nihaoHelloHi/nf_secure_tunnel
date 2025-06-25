@@ -17,8 +17,6 @@ static struct nf_hook_ops nf_local_out={
 	.priority = NF_IP_PRI_FIRST
 };
 
-
-
 static int __init nst_init(void)
 {
     pr_info("NST module loaded.\n");

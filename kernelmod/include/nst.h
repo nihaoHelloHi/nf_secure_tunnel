@@ -9,17 +9,24 @@
 #define NST_VERSION           1             // 当前协议版本
 #define NST_TOKEN_LEN         16            // Token长度
 #define NST_NONCE_LEN         8             // Nonce长度
-#define NST_HEADER_SIZE       44            // 固定头部长度
+#define NST_HEADER_SIZE       48            // 固定头部长度
 #define NST_MAX_PAYLOAD       1400          // 最大加密payload，保证不超过 MTU
 
 // --------------------------------------------------------------------------------
-// === 加密算法ID ===
-#define ENCRYPT_ALGO_DEFALUT 0
+// === 加密算法 ===
+#define ENCRYPT_ALGO_AES_GCM 1
+#define ENCRYPT_ALGO_AES_CBC 2
+#define ENCRYPT_ALGO_SM4_GCM 3 // 国密
+#define ENCRYPT_ALGO_SM4_CBC 4 // 国密
+#define ENCRYPT_ALGO_DEFAULT ENCRYPT_ALGO_SM4_GCM
+#define ENCRYPT_BOX_MAX_KEYS 8  // 秘钥盒数量
+#define ENCRYPT_KEY_LEN 32      // 秘钥长度(B)
 
+extern u8 nst_keybox[ENCRYPT_BOX_MAX_KEYS][ENCRYPT_KEY_LEN];
 
 // --------------------------------------------------------------------------------
 // === 协议头部结构 ===
-// 4+4+8+8+16+2+1+1+2+2 = 48B
+// 4+1+1+2+8+8+16+1+1+2+4 = 48B
 struct nst_hdr {
     __be32 magic;                   // 魔数标识协议
     u8 version;                     // 协议版本
@@ -28,10 +35,10 @@ struct nst_hdr {
     __be64 timestamp;               // 时间戳，防重放
     __be64 nonce;                   // 随机数/计数器
     u8 token[NST_TOKEN_LEN];        // 认证字段（对称或HMAC）
-    __be16 kpos;                    // 秘钥改变位置, 0表示不修改
-    __be16 kval;                    // 秘钥改变值
-    __be16 flags;                   // 保留标志位
-    __be16 reserved;                // 保留字段
+    u8 kpos;                    // 秘钥改变位置, 0表示不修改
+    u8 kval;                    // 秘钥改变值
+    __be16 kid;                     // 秘钥id
+    __be32 flags;                   // 保留标志位
 } __attribute__((packed));          // 取消结构对齐
 
 // --------------------------------------------------------------------------------
@@ -59,9 +66,30 @@ int nst_validate_hdr(const struct nst_hdr *hdr);
 
 // --------------------------------------------------------------------------------
 // === 加解密接口 ===
-int nst_modify_key(u16 kpos, u16 kval);
-int nst_encrypt_skb(struct sk_buff *skb, const u8 *key, size_t keylen, struct net_device *dev);
+int nst_mutate_key(u8 kpos, u8 kval);
+int nst_encrypt_skb(struct sk_buff *skb, struct nst_hdr *nsthdr);
 int nst_decrypt_skb(struct sk_buff *skb, const u8 *key, size_t keylen);
+
+// === 加解密算法接口 ===
+int nst_encrypt_aes_gcm(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                        const u8 *key, size_t key_len, const u8 *aad, size_t aad_len);
+int nst_decrypt_aes_gcm(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                        const u8 *key, size_t key_len, const u8 *aad, size_t aad_len);
+
+int nst_encrypt_aes_cbc_hmac(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                             const u8 *key, size_t key_len);
+int nst_decrypt_aes_cbc_hmac(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                             const u8 *key, size_t key_len);
+
+int nst_encrypt_sm4_gcm(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                        const u8 *key, size_t key_len, const u8 *aad, size_t aad_len);
+int nst_decrypt_sm4_gcm(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                        const u8 *key, size_t key_len, const u8 *aad, size_t aad_len);
+
+int nst_encrypt_sm4_cbc_sm3(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                            const u8 *key, size_t key_len);
+int nst_decrypt_sm4_cbc_sm3(const u8 *in, size_t in_len, u8 *out, size_t *out_len,
+                            const u8 *key, size_t key_len);
 
 // --------------------------------------------------------------------------------
 // === 校验和处理模块 ===

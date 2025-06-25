@@ -38,14 +38,14 @@ static __be16 get_payload_len(struct sk_buff *skb){
 int nst_build_hdr(struct nst_hdr *nsthdr, struct sk_buff *skb){
     nsthdr->magic = cpu_to_be32(NST_MAGIC);
     nsthdr->version = NST_VERSION;
-    nsthdr->cipher_id = ENCRYPT_ALGO_DEFALUT; // 假设 AES-GCM
+    nsthdr->cipher_id = ENCRYPT_ALGO_DEFAULT; // 假设 AES-GCM
     nsthdr->timestamp = get_current_unix_timestamp();
     nsthdr->nonce = generate_random_nonce(); // 可选固定递增
     nsthdr->payload_len = get_payload_len(skb);
-    nsthdr->kpos = cpu_to_be16(0);
-    nsthdr->kval = cpu_to_be16(0);
-    nsthdr->flags = cpu_to_be16(0);
-    nsthdr->reserved = cpu_to_be16(0);
+    nsthdr->kpos = 0;
+    nsthdr->kval = 0;
+    nsthdr->kid = cpu_to_be16(0);
+    nsthdr->flags = cpu_to_be32(0);
 
     // token
     fill_token_field(nsthdr->token, '\0');  // HMAC 或 PSK

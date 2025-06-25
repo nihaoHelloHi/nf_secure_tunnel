@@ -16,18 +16,24 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
     if (ip_header->protocol != IPPROTO_TCP && ip_header->protocol != IPPROTO_UDP)
         return NF_ACCEPT;
 
+    if (ip_header->version != 4)
+        return NF_ACCEPT;
+
     // ③ 尝试线性化 skb（必要）
-    if (skb_linearize(skb) != 0)
+    if (skb_linearize(skb) != 0){
+        printk("线性化skb失败");
         return NF_DROP;
+    }
 
     // ④ 构造头部 nst_hdr
     struct nst_hdr nst_header;
     nst_build_hdr(&nst_header, skb);
 
+    // mark:需要注意pskb_may_pull判断长度是否够用？边界判断
+
     // ⑤ 封装 + 加密
-    if (nst_encrypt_enable)
-    {
-        if (nst_encrypt_skb(skb, key, keylen, state->out) != 0)
+    if (nst_encrypt_enable){
+        if (nst_encrypt_skb(skb, &nst_header) != 0)
             return NF_DROP;
     }
     
@@ -37,7 +43,7 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
 
     // ⑦ 修复校验和
     nst_fix_ip_csum(skb);
-    if (iphdr->protocol == IPPROTO_TCP)
+    if (ip_header->protocol == IPPROTO_TCP)
         nst_fix_tcp_csum(skb);
     else
         nst_fix_udp_csum(skb);
