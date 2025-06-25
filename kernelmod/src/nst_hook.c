@@ -1,7 +1,7 @@
 #include "nst.h"
 
-bool nst_drop_invalid;        // 是否丢弃非法包
-bool nst_enable;              // 总开关
+bool nst_drop_invalid = true;        // 是否丢弃非法包
+bool nst_enable = true;              // 总开关
 
 unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hook_state *state){
     // ① 是否启用模块？
@@ -12,8 +12,8 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
     if (!skb || !skb->protocol == htons(ETH_P_IP))
         return NF_ACCEPT;
 
-    iphdr = ip_hdr(skb);
-    if (iphdr->protocol != IPPROTO_TCP && iphdr->protocol != IPPROTO_UDP)
+    struct iphdr *ip_header = ip_hdr(skb);
+    if (ip_header->protocol != IPPROTO_TCP && ip_header->protocol != IPPROTO_UDP)
         return NF_ACCEPT;
 
     // ③ 尝试线性化 skb（必要）
@@ -21,14 +21,8 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
         return NF_DROP;
 
     // ④ 构造头部 nst_hdr
-    nst_hdr hdr;
-    hdr.magic = NST_MAGIC;
-    hdr.timestamp = get_current_unix_timestamp();
-    hdr.nonce = generate_random_nonce(); // 可选固定递增
-    hdr.payload_len = get_payload_len(skb);
-    hdr.version = NST_VERSION;
-    hdr.cipher_id = 1; // 假设 AES-GCM
-    fill_token_field(&hdr.token, ...);  // HMAC 或 PSK
+    struct nst_hdr nst_header;
+    nst_build_hdr(&nst_header, skb);
 
     // ⑤ 封装 + 加密
     if (nst_encrypt_enable)

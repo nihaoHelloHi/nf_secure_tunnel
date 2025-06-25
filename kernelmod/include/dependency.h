@@ -3,6 +3,7 @@
 
 #include <linux/time.h>
 #include <linux/timer.h>
+#include <linux/timekeeping.h>
 #include <linux/jiffies.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -18,5 +19,4 @@
 #include <linux/spinlock.h>
 #include <linux/types.h>   // uint*_t
 #include <linux/netdevice.h> // struct net_device
-
 #endif
