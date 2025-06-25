@@ -59,6 +59,7 @@ void nst_fix_tcp_csum(struct sk_buff *skb);
 
 // --------------------------------------------------------------------------------
 // === payload头部模块 ===
+int nst_build_hdr();
 int nst_insert_hdr(struct sk_buff *skb, const struct nst_hdr *hdr);
 int nst_parse_hdr(struct sk_buff *skb, struct nst_hdr *hdr_out);
 int nst_validate_hdr(const struct nst_hdr *hdr);

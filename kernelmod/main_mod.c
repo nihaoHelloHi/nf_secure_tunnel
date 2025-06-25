@@ -1,6 +1,6 @@
 #include "nst.h"
 
-MODULE_LICENSE("NST");
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Tangmin");
 
 static struct nf_hook_ops nf_local_in={
