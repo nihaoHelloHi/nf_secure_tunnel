@@ -2,6 +2,11 @@
 #define NF_SECURE_TUNNEL_H
 
 #include "dependency.h"
+#include "tools.h"
+
+// --------------------------------------------------------------------------------
+// === 返回参数 ===
+#define OK 0
 
 // --------------------------------------------------------------------------------
 // === 协议参数 ===
@@ -19,10 +24,11 @@
 #define ENCRYPT_ALGO_SM4_GCM 3 // 国密
 #define ENCRYPT_ALGO_SM4_CBC 4 // 国密
 #define ENCRYPT_ALGO_DEFAULT ENCRYPT_ALGO_SM4_GCM
-#define ENCRYPT_BOX_MAX_KEYS 8  // 秘钥盒数量
+#define ENCRYPT_BOX_MAX_KEYS 16  // 秘钥盒数量
 #define ENCRYPT_KEY_LEN 32      // 秘钥长度(B)
 
 extern u8 nst_keybox[ENCRYPT_BOX_MAX_KEYS][ENCRYPT_KEY_LEN];
+extern u32 cur_key_num;
 
 // --------------------------------------------------------------------------------
 // === 协议头部结构 ===
@@ -31,7 +37,7 @@ struct nst_hdr {
     __be32 magic;                   // 魔数标识协议
     u8 version;                     // 协议版本
     u8 cipher_id;                   // 加密算法ID
-    __be16 payload_len;             // 明文 payload 长度
+    __be16 transport_len;             // 明文 payload 长度
     __be64 timestamp;               // 时间戳，防重放
     __be64 nonce;                   // 随机数/计数器
     u8 token[NST_TOKEN_LEN];        // 认证字段（对称或HMAC）
@@ -65,8 +71,12 @@ int nst_parse_hdr(struct sk_buff *skb, struct nst_hdr *hdr_out);
 int nst_validate_hdr(const struct nst_hdr *hdr);
 
 // --------------------------------------------------------------------------------
+// === 密钥相关 ===
+int add_key();
+int del_key();
+
 // === 加解密接口 ===
-int nst_mutate_key(u8 kpos, u8 kval);
+int nst_mutate_key(u8* key, struct nst_hdr *nsthdr);
 int nst_encrypt_skb(struct sk_buff *skb, struct nst_hdr *nsthdr);
 int nst_decrypt_skb(struct sk_buff *skb, const u8 *key, size_t keylen);
 

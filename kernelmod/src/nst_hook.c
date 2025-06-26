@@ -27,7 +27,8 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
 
     // ④ 构造头部 nst_hdr
     struct nst_hdr nst_header;
-    nst_build_hdr(&nst_header, skb);
+    if(nst_build_hdr(&nst_header, skb) != OK)
+        return NF_DROP;
 
     // mark:需要注意pskb_may_pull判断长度是否够用？边界判断
 
@@ -36,7 +37,9 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
         if (nst_encrypt_skb(skb, &nst_header) != 0)
             return NF_DROP;
     }
-    
+
+    // 更新IP、Transport报头数据
+
     // ⑥ 记录日志
     if (nst_log_enable)
         nst_log_packet(skb, "[NST OUT] 加密并封装成功");
