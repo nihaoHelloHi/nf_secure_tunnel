@@ -66,7 +66,6 @@ extern bool nst_drop_invalid;        // 是否丢弃非法包
 // --------------------------------------------------------------------------------
 // === payload头部模块 ===
 int nst_build_hdr(struct nst_hdr *hdr, struct sk_buff *skb);
-int nst_insert_hdr(struct sk_buff *skb, const struct nst_hdr *hdr);
 int nst_parse_hdr(struct sk_buff *skb, struct nst_hdr *hdr_out);
 int nst_validate_hdr(const struct nst_hdr *hdr);
 

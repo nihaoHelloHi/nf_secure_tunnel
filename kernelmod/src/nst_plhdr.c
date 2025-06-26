@@ -71,9 +71,6 @@ int nst_build_hdr(struct nst_hdr *nsthdr, struct sk_buff *skb){
 
 // --------------------------------------------------------------------------------
 // === payload头部处理 ===
-int nst_insert_hdr(struct sk_buff *skb, const struct nst_hdr *hdr){
-    return 0;
-}
 int nst_parse_hdr(struct sk_buff *skb, struct nst_hdr *hdr_out){
     return 0;
 }
