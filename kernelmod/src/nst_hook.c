@@ -32,24 +32,15 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
 
     // mark:需要注意pskb_may_pull判断长度是否够用？边界判断
 
-    // ⑤ 封装 + 加密
+    // ⑤ 封装 + 加密 + 更新IP、Transport报头数据 + 修复校验和
     if (nst_encrypt_enable){
-        if (nst_encrypt_skb(skb, &nst_header) != 0)
+        if (nst_encrypt_skb(skb, &nst_header) != OK)
             return NF_DROP;
     }
-
-    // 更新IP、Transport报头数据
 
     // ⑥ 记录日志
     if (nst_log_enable)
         nst_log_packet(skb, "[NST OUT] 加密并封装成功");
-
-    // ⑦ 修复校验和
-    nst_fix_ip_csum(skb);
-    if (ip_header->protocol == IPPROTO_TCP)
-        nst_fix_tcp_csum(skb);
-    else
-        nst_fix_udp_csum(skb);
 
     return NF_ACCEPT;
 }
