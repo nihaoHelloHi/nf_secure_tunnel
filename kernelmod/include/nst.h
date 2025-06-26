@@ -71,8 +71,9 @@ int nst_validate_hdr(const struct nst_hdr *hdr);
 
 // --------------------------------------------------------------------------------
 // === 密钥相关 ===
-int add_key();
-int del_key();
+void init_keybox(void);
+int add_key(u8 *key);
+int del_key(int kid);
 
 // === 加解密接口 ===
 int nst_mutate_key(u8* key, struct nst_hdr *nsthdr);

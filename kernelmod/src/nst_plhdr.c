@@ -1,17 +1,18 @@
 #include "nst.h"
 
 /*
+ * mark
  * 填充头部token
  * 是否用 HMAC 或 PSK 生成token
  */
 static int fill_token_field(u8 *hdr_token, char* content){
-
+    return OK;
 }
 
 /*
  * 获取当前时间(秒级)，并转换大小端
  */
-static __be64 get_current_unix_timestamp(){
+static __be64 get_current_unix_timestamp(void){
     u64 ts = (u64)ktime_get_real_seconds();
     return cpu_to_be64(ts);
 }
@@ -19,7 +20,7 @@ static __be64 get_current_unix_timestamp(){
 /*
  * 随机生成nonce
  */
-static __be64 generate_random_nonce(){
+static __be64 generate_random_nonce(void){
     u64 nonce;
     get_random_bytes(&nonce, sizeof(nonce));
     nonce ^= (u64)ktime_get_real_ns(); // 结合当前时间戳

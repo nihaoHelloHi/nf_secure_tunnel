@@ -14,15 +14,20 @@ u8* get_transport_payload(struct sk_buff *skb, u16 *len){
     u8* pl_start = NULL;
     u32 pl_len = 0;
     u32 ip_hdrlen = ip_header->ihl * 4;
+    struct tcphdr* tcp_header = NULL;
+    struct udphdr* udp_header = NULL;
+    u32 tcp_hdrlen = 0;
+    u32 tot_len = 0;
+    u32 udp_len = 0;
 
     if (ip_header->protocol == IPPROTO_TCP){
         // 验证tcp头部完整性,确保skb长度足够
         if(!pskb_may_pull(skb,ip_hdrlen + sizeof(struct tcphdr)))
             return NULL;
-        struct tcphdr* tcp_header = tcp_hdr(skb);
+        tcp_header = tcp_hdr(skb);
         // 计算payload开始位置和长度
-        u32 tcp_hdrlen = tcp_header->doff * 4;
-        u32 tot_len = be16_to_cpu(ip_header->tot_len);
+        tcp_hdrlen = tcp_header->doff * 4;
+        tot_len = be16_to_cpu(ip_header->tot_len);
         if (tot_len < ip_hdrlen +tcp_hdrlen)
             return NULL;
         pl_start = (u8*)tcp_header + tcp_hdrlen;
@@ -31,8 +36,8 @@ u8* get_transport_payload(struct sk_buff *skb, u16 *len){
     else if(ip_header->protocol == IPPROTO_UDP){
         if(!pskb_may_pull(skb, ip_hdrlen + sizeof(struct udphdr)))
             return NULL;
-        struct udphdr* udp_header = udp_hdr(skb);
-        u32 udp_len = be16_to_cpu(udp_header->len);
+        udp_header = udp_hdr(skb);
+        udp_len = be16_to_cpu(udp_header->len);
         if (udp_len < sizeof(struct udphdr))
                 return NULL;
         pl_start = (u8*)udp_header + sizeof(struct udphdr);

@@ -4,15 +4,18 @@ bool nst_drop_invalid = true;        // 是否丢弃非法包
 bool nst_enable = true;              // 总开关
 
 unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hook_state *state){
+    struct iphdr *ip_header = NULL;
+    struct nst_hdr nst_header;
+
     // ① 是否启用模块？
     if (!nst_enable)
         return NF_ACCEPT;
 
     // ② 检查skb是否有效且为TCP/UDP
-    if (!skb || !skb->protocol == htons(ETH_P_IP))
+    if (!skb || skb->protocol != htons(ETH_P_IP))
         return NF_ACCEPT;
 
-    struct iphdr *ip_header = ip_hdr(skb);
+    ip_header = ip_hdr(skb);
     if (ip_header->protocol != IPPROTO_TCP && ip_header->protocol != IPPROTO_UDP)
         return NF_ACCEPT;
 
@@ -26,7 +29,6 @@ unsigned int hook_local_out(void *priv, struct sk_buff *skb, const struct nf_hoo
     }
 
     // ④ 构造头部 nst_hdr
-    struct nst_hdr nst_header;
     if(nst_build_hdr(&nst_header, skb) != OK)
         return NF_DROP;
 

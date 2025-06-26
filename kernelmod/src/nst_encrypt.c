@@ -8,16 +8,16 @@ u32 cur_key_num = 0;                 // 当前密钥数量
 // 秘钥盒
 u8 nst_keybox[ENCRYPT_BOX_MAX_KEYS][ENCRYPT_KEY_LEN];
 
-void init_keybox(){
+void init_keybox(void){
 
 }
 
 // 如果要有增删秘钥需要添加主机间的同步机制
-int add_key(){
+int add_key(u8 *key){
     return OK;
 }
 
-int del_key(){
+int del_key(int kid){
     return OK;
 }
 
