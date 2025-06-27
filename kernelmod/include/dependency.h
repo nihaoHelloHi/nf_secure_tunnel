@@ -19,4 +19,6 @@
 #include <linux/spinlock.h>
 #include <linux/types.h>   // uint*_t
 #include <linux/netdevice.h> // struct net_device
+
+#include <net/sock.h>
 #endif
